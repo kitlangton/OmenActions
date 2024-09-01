@@ -120,7 +120,7 @@ struct ContentView: View {
               modifiers: .command
             ),
             action: {
-              deleteItems(offsets: IndexSet(selectedItems.map { items.firstIndex(of: $0)! }))
+              deleteItems(offsets: IndexSet(selectedItems.compactMap { items.firstIndex(of: $0) }))
             }
           ),
         ]),

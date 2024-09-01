@@ -33,15 +33,23 @@
     private func getKeyAndModifiers(event: NSEvent) -> (EventModifiers, KeyEquivalent?) {
       let modifiers = EventModifiers.fromCocoa(event.modifierFlags)
       
-      // Handle special keys
-      if event.specialKey == .delete {
-        return (modifiers, .delete)
+      switch event.type {
+      case .flagsChanged:
+        return (modifiers, nil)
+      case .keyDown:
+        // Handle special keys
+        if event.specialKey == .delete {
+          return (modifiers, .delete)
+        }
+        
+        if let char = Sauce.shared.currentASCIICapableCharacter(for: Int(event.keyCode), cocoaModifiers: [])?.first {
+          let key = KeyEquivalent(char)
+          return (modifiers, key)
+        }
+      default:
+        break
       }
       
-      if let char = Sauce.shared.currentASCIICapableCharacter(for: Int(event.keyCode), cocoaModifiers: [])?.first {
-        let key = KeyEquivalent(char)
-        return (modifiers, key)
-      }
       return (modifiers, nil)
     }
   }
@@ -112,16 +120,30 @@
       @State var key: String = ""
       @State var modifiers: NSEvent.ModifierFlags = []
       @State var string: String = ""
+      @State var eventType: NSEvent.EventType = .leftMouseDown
+
+      var modifiersDescription: String {
+        modifiers.rawValue.description
+      }
 
       var body: some View {
         VStack {
+          Text("Event Type: \(eventType.rawValue)")
           Text("Key: \(key)")
-//        Text("Modifiers: \(modifiers.description)")
+          Text("Modifiers: \(modifiersDescription)")
           Text("String: \(string)")
           KeyGetter { event in
-            key = event.charactersIgnoringModifiers ?? ""
+            eventType = event.type
             modifiers = event.modifierFlags
-            string = event.characters ?? ""
+            
+            if event.type == .flagsChanged {
+              key = "Modifier key"
+              string = ""
+            } else {
+              key = event.charactersIgnoringModifiers ?? ""
+              string = event.characters ?? ""
+            }
+            
             return .ignored
           }
         }
