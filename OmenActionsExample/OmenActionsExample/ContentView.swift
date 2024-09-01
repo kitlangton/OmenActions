@@ -62,7 +62,7 @@ struct ContentView: View {
     }
     .background {
       #if os(macOS)
-      ActionMenuShortcutsView(actionMenu: actionMenu)
+        ActionMenuShortcutsView(actionMenu: actionMenu)
       #endif
     }
   }
@@ -109,6 +109,18 @@ struct ContentView: View {
                 let newItem = Item(name: item.name, timestamp: Date())
                 modelContext.insert(newItem)
               }
+            }
+          ),
+          // Delete
+          Action(
+            systemName: "trash",
+            name: "Delete",
+            shortcut: .init(
+              key: .delete,
+              modifiers: .command
+            ),
+            action: {
+              deleteItems(offsets: IndexSet(selectedItems.map { items.firstIndex(of: $0)! }))
             }
           ),
         ]),

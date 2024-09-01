@@ -32,6 +32,12 @@
 
     private func getKeyAndModifiers(event: NSEvent) -> (EventModifiers, KeyEquivalent?) {
       let modifiers = EventModifiers.fromCocoa(event.modifierFlags)
+      
+      // Handle special keys
+      if event.specialKey == .delete {
+        return (modifiers, .delete)
+      }
+      
       if let char = Sauce.shared.currentASCIICapableCharacter(for: Int(event.keyCode), cocoaModifiers: [])?.first {
         let key = KeyEquivalent(char)
         return (modifiers, key)
